@@ -1,0 +1,118 @@
+{include file="public/meta" /}
+<body>
+		<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 商户列表 </nav>
+		<div class="page-container">
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th width="80">ID</th>
+							<th width="100">商户名称</th>
+							<th width="30">法人</th>
+							<th width="150">联系电话</th>
+							<th width="60">申请时间</th>
+							<th width="60">状态</th>
+							<th width="100">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						{volist name="bis" id="vo"}
+						<tr class="text-c">
+							<td>{$vo.id}</td>
+							<td>{$vo.name}</td>
+							<td class="text-c">{$vo.faren}</td>
+							<td class="text-c">{$vo.faren_tel}</td>
+							<td>{$vo.create_time}</td>
+							<td class="td-status" >
+								<a href="{:url('bis/status',['id'=>$vo.id,'status'=>0])}" title="点击修改状态">{$vo.status|status}</a>
+							</td>
+
+							<td class="td-manage"> 
+								<a style="text-decoration:none" class="ml-5" onClick="o2o_edit('商户入驻详情数据','{:url('bis/detail', ['id'=>$vo.id])}')" href="javascript:;" title="编辑">
+									<i class="Hui-iconfont">&#xe6df;</i>
+								</a>
+
+								<a style="text-decoration:none" class="ml-5" onclick="o2o_del('商户删除','{:url('bis/status',['id'=>$vo.id,'status'=>-1])}')" href="javascript:;" title="删除">
+									<i class="Hui-iconfont">&#xe6e2;</i>
+								</a>
+
+								<a style="text-decoration:none" class="ml-5" href="{:url('bis/status',['id'=>$vo.id,'status'=>2])}" title="不通过">
+									<i class="Hui-iconfont">&#xe6dd;</i>
+								</a>
+							</td>
+
+						</tr>
+						{/volist}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		<!-- 分页样式 -->
+		{:pagination($bis)}
+
+{include file="public/footer"}
+<script type="text/javascript">
+	/*商户-添加*/
+	function o2o_add(title,url,w,h){
+		var index = layer.open({
+			type: 2,
+			title: title,
+			content: url
+		});
+		layer.full(index);
+	}
+	/*商户-编辑*/
+	function o2o_edit(title,url){
+		var index = layer.open({
+			type: 2,
+			title: title,
+			content: url
+		});
+		layer.full(index);
+	}
+	/*商户-编辑*/
+	// function o2o_edit(title,url,id,w,h){
+	// 	layer_show(title,url,w,h);
+	// }
+
+	/*商户-删除*/
+	function o2o_del(obj,id){
+		layer.confirm('确认要删除吗？',function(index){
+			$.ajax({
+				type: 'POST',
+				url: '',
+				dataType: 'json',
+				success: function(data){
+					$(obj).parents("tr").remove();
+					layer.msg('已删除!',{icon:1,time:1000});
+				},
+				error:function(data) {
+					console.log(data.msg);
+				},
+			});		
+		});
+	}
+	
+	/*商户-审核*/
+	function o2o_shenhe(obj,id){
+		layer.confirm('审核文章？', {
+			btn: ['通过','不通过','取消'], 
+			shade: false,
+			closeBtn: 0
+		},
+		function(){
+			$(obj).parents("tr").find(".td-manage").prepend('<a class="c-primary" onClick="article_start(this,id)" href="javascript:;" title="申请上线">申请上线</a>');
+			$(obj).parents("tr").find(".td-status").html('<span class="label label-success radius">已发布</span>');
+			$(obj).remove();
+			layer.msg('已发布', {icon:6,time:1000});
+		},
+		function(){
+			$(obj).parents("tr").find(".td-manage").prepend('<a class="c-primary" onClick="article_shenqing(this,id)" href="javascript:;" title="申请上线">申请上线</a>');
+			$(obj).parents("tr").find(".td-status").html('<span class="label label-danger radius">未通过</span>');
+			$(obj).remove();
+			layer.msg('未通过', {icon:5,time:1000});
+		});	
+	}
+	</script> 
+</body>

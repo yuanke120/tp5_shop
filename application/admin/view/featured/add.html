@@ -1,0 +1,133 @@
+{include file="public/meta" /}
+<body>
+<div class="cl pd-5 bg-1 bk-gray mt-20"> 添加推荐位信息</div>
+<article class="page-container">
+	<form class="form form-horizontal" id="form-article-add" method="post" action="{:url('featured/add')}">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>标题：</label>
+			<div class="formControls col-xs-8 col-sm-3">
+				<input type="text" class="input-text" value="" placeholder="" id="" name="title">
+			</div>
+		</div>
+		
+		<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">推荐位：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+				  <input id="file_upload"  type="file" multiple="true" >
+				  <img style="display: none" id="upload_org_code_img" src="" width="150" height="150">
+				  <input id="file_upload_image" name="image" type="hidden" multiple="true" value="">
+				</div>
+		  </div>
+		
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>所属分类：</label>
+			<div class="formControls col-xs-8 col-sm-3"> <span class="select-box">
+				<select name="type" class="select">
+					
+					{volist name="type" id="vo"}
+					<option value="{$key}">{$vo}</option>
+					{/volist}
+					
+				</select>
+				</span>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2">url：</label>
+			<div class="formControls col-xs-8 col-sm-3">
+				<input type="text" class="input-text" value="" placeholder="" id="" name="url">
+			</div>
+		</div>
+		
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2">描述：</label>
+			<div class="formControls col-xs-8 col-sm-3">
+				<input type="text" class="input-text" value="" placeholder="" id="" name="description">
+			</div>
+		</div>
+		
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+				<button onClick="article_save_submit();" class="btn btn-primary radius" type="submit"><i class="Hui-iconfont">&#xe632;</i> 添加</button>	
+			</div>
+		</div>
+	</form>
+</article>
+{include file="public/footer" /}
+
+<script>
+    var SCOPE={
+        //配置城市后台的交互地址  调用api接口
+        'city_url'        :"{:url('api/city/getCityByParentId')}",
+        'category_url'    :"{:url('api/category/getCategoryByParentId')}",
+
+        //上传图片api接口
+		'swf'             : '__STATIC__/admin/uploadify/uploadify.swf',
+        'image_upload':"{:url('api/image/upload')}", //后台处理api的json的数据
+    };
+	/*城市相关二级内容**/
+	$(".cityId").change(function () {
+		city_id=$(this).val();
+		//抛送请求http
+		url=SCOPE.city_url;
+		postData = {'id':city_id};
+		$.post(url,postData,function (result) {
+			//	相关业务处理
+			if(result.status == 1){
+				data =result.data;
+				city_html = "";
+				$(data).each(function (i) {
+					city_html+="<option value='"+this.id+"'>"+this.name+"</option>";
+				});
+				$('.se_city_id').html(city_html);
+			}else if(result.status==0){
+				$('.se_city_id').html('');
+			}
+		},'json')
+	});
+
+    /*分类相关二级内容**/
+    $(".categoryId").change(function(){
+        category_id=$(this).val();
+        url=SCOPE.category_url;
+        postData={'id':category_id};
+        $.post(url,postData,function(result){
+            //相关业务处理
+            if(result.status ==1){
+                data=result.data;
+                category_html="";
+                $(data).each(function(i){
+                    category_html +='<input name="se_category_id[]" type="checkbox" id="checkbox-moban" value="'+this.id+'"/>'+this.name;
+                    category_html +='<label for="checkbox-moban">&nbsp;</label>';
+                });
+                $('.se_category_id').html(category_html);
+            }else if(result.status==0){
+                $('.se_category_id').html('');
+            }
+
+        },'json');
+    });
+
+	// 缩略图处理图片
+	$("#file_upload").uploadify({
+		'auto': true,
+		'swf':SCOPE.swf,
+		'uploader':SCOPE.image_upload,
+		'buttonText':"上传图片",
+		'fileTypeDesc':'Image files',
+		'fileObjName':'file',
+		'fileTypeExts':'*.gif;*.png;*.jpg',
+		'onUploadSuccess' : function(file, data,response) {
+			console.log(file);
+			console.log(data);
+			console.log(response);
+			if(response){
+				var obj=JSON.parse(data);
+				$("#upload_org_code_img").attr("src",obj.data);
+				$("#file_upload_image").attr("value",obj.data);
+				$("#upload_org_code_img").show();
+			}
+		}
+
+	});
+</script>
