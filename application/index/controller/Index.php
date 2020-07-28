@@ -14,9 +14,10 @@ class Index extends BaseController
     public function index()
     {
         //获取首页大图 相关数据
+        //显示推荐位信息
         //    return [1,2];
-        $type0=model('Featured')->where(['type'=>0])->select(); // stype字段获取0
-        $type1=model('Featured')->where(['type'=>1])->select(); // stype字段获取1
+        $type0 = model('Featured')->where(['type'=>0,'status'=>1])->select(); // stype字段获取0
+        $type1 = model('Featured')->where(['type'=>1,'status'=>1])->select(); // stype字段获取1
         //获取广告相关的数据
         //商品分类 数据-养生保健 推荐的数据
         $datas= model('Deal')->getNormalDealByCategoryCityId(1,$this->city->id);
